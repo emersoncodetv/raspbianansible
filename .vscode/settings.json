@@ -1,0 +1,17 @@
+{
+  "ansible.fileCopyConfig": [
+    {
+      "server": "172.16.206.135",
+      "sourcePath": "/Users/emerson/Dev/yummy_ansible_printers/",
+      "targetPath": "",
+      "copyOnSave": true
+    }
+  ],
+  "python.pythonPath": "/usr/local/bin/python3",
+  "editor.fontSize": 12,
+  "editor.rulers": [50, 60, 80],
+  "workbench.colorCustomizations": {
+    "editorRuler.foreground": "#ff4081"
+  },
+  "editor.codeLens": true
+}

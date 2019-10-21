@@ -1,0 +1,57 @@
+---
+# tasks file for install_config_docker
+- name: Add docker.list version
+  lineinfile:
+    path: /etc/apt/sources.list.d/docker.list
+    regexp: '^deb\ \[arch='
+    # line: "deb [arch={{ HW_ARCH }}] https://download.docker.com/linux/{{ OS_DIST }} {{ OS_RELEASE }} stable"
+    line: "deb [arch={{ HW_ARCH }}] https://download.docker.com/linux/{{ OS_DIST }} {{ OS_RELEASE }} stable"
+    owner: root
+    group: root
+    mode: 0644
+    create: yes
+- name: Add docker to apt key
+  apt_key:
+    url: https://download.docker.com/linux/{{ OS_DIST }}/gpg
+    state: present
+- name: packages versions
+  debug:
+    msg: "{{ ansible_facts.packages }}"
+    verbosity: 1
+
+# - name: packages versions
+#   debug: var=ansible_facts.packages["docker-ce"][0].version
+# - name: packages versions
+#   debug: var="{{ "docker-ce" in ansible_facts.packages }}"
+
+- block:
+    - name: Uninstall {{ DOCKER }}={{ DOCKER_VERSION }}
+      apt:
+        name: "{{ DOCKER }}"
+        state: absent
+    - name: Remove dependencies that are no longer required
+      apt:
+        autoremove: yes
+    - import_tasks: ./get_pkg_list.yml
+  when:
+    - DOCKER in ansible_facts.packages
+    - DOCKER_VERSION not in ansible_facts.packages["docker-ce"][0].version
+
+- block:
+    # - name: Remove useless packages from the cache
+    #   apt:
+    #     autoclean: yes
+    #   become: yes
+    # - command: apt-get clean
+    #   become: yes
+    - name: Run the equivalent of "apt-get update" as a separate step
+      apt:
+        update_cache: yes
+      become: yes
+    # - name: Install {{ DOCKER }} package
+    #   apt:
+    #     name: "{{ DOCKER }}={{ DOCKER_VERSION }}"
+    #     state: present
+    #     install_recommends: no
+  when:
+    - DOCKER not in ansible_facts.packages

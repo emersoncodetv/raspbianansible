@@ -1,0 +1,81 @@
+---
+# ansible_port can change throughout this role, keep a copy around
+- name: DEBUG ansible_port var
+  debug:
+    msg: "{{ ansible_port }}"
+    verbosity: 1
+
+- name: Set configured port fact
+  set_fact:
+    configured_port: "{{ ansible_port }}"
+
+# From localhost, check if we're able to reach {{ inventory_hostname }} on
+# port 22
+
+- set_fact:
+    host_to_wait_for: "{{ ansible_ssh_host | default(inventory_hostname) }}"
+
+- debug:
+    msg: "{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}"
+    verbosity: 1
+  delegate_to: localhost
+
+- debug:
+    msg: "ansible_ssh_host={{ ansible_ssh_host }}, inventory_hostname={{ inventory_hostname }}, host_to_wait_for={{ host_to_wait_for }}"
+    verbosity: 1
+  delegate_to: localhost
+
+# Do not assume the inventory_hostname is resolvable and delay 10 seconds at start
+# - name: Wait 300 seconds for port {{ configured_port }} to become open and contain "OpenSSH"
+#   wait_for:
+#     port: "{{ configured_port }}"
+#     host: "{{ host_to_wait_for }}"
+#     # host: "{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}"
+#     search_regex: OpenSSH
+#     delay: 10
+#   delegate_to: localhost
+#   # vars:
+#   #   ansible_connection: local
+#   register: default_ssh
+
+- name: Validating if SSH is UP and OPENED the PORT {{ configured_port }}
+  tags: amvalidate1
+  wait_for:
+    host: "{{ host_to_wait_for }}"
+    port: "{{ configured_port }}"
+    delay: 10
+    timeout: 30
+    connect_timeout: 30
+    state: started
+    search_regex: OpenSSH
+    msg: "SSH PORT is not Listening"
+  # when: ansible_host == "{{inventory_hostname}}"
+  # delegate_to: localhost
+  delegate_to: localhost
+  ignore_errors: true
+  register: default_ssh
+
+# First Time
+
+# 2222
+
+# {'msg': 'SSH PORT is not Listening', 'failed': True, 'elapsed': 30, 'changed': False}
+
+# Second Time
+
+# 2222
+
+# {'elapsed': 10, 'search_regex': 'OpenSSH', 'state': 'started', 'path': None, 'port': 2222, 'failed': False, 'changed': False}
+
+- name: DEBUG default_ssh var
+  debug:
+    msg: "{{ default_ssh }}"
+    verbosity: 1
+
+# If reachable, continue the following tasks with this port
+- name: Set inventory ansible_port to default
+  set_fact:
+    ansible_port: 22
+  when: default_ssh is defined and
+    default_ssh.failed == true
+  register: ssh_port_set

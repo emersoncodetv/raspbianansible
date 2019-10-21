@@ -1,0 +1,6 @@
+---
+# handlers file for SECURITY_PRINTER
+- name: Restart sshd
+  service:
+    name: sshd
+    state: restarted

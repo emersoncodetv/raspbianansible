@@ -1,0 +1,7 @@
+---
+- name: install python
+  raw: test -e /usr/bin/python || (apt-get -y install python)
+  register: output
+  changed_when:
+    - output.stdout != ""
+    - output.stdout != "\r\n"

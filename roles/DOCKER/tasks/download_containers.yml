@@ -1,0 +1,14 @@
+---
+- name: Download IoT Subscriber | Responsible of Receive message to be printed
+  docker_container:
+    name: aws_iot_sub
+    image: 314418232935.dkr.ecr.us-east-1.amazonaws.com/aws_iot_sub:1.7.2
+    pull: yes
+    state: present
+
+- name: SSH RemoteForward| Port From 2000 to 2999 for config purpose
+  docker_container:
+    name: ssh_remote_admin
+    image: 314418232935.dkr.ecr.us-east-1.amazonaws.com/ssh_remote_admin:1.0.1
+    pull: yes
+    state: present

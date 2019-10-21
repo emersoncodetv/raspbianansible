@@ -1,0 +1,44 @@
+---
+# LXC
+# lxc config set restaurant02 raw.lxc "lxc.apparmor.profile=unconfined"
+# lxc config set restaurant02 security.nesting true
+# # tasks file for DOCKER_CONTAINERS
+# - name: IoT Subscriber | Receive message to be printed
+#   docker_container:
+#     name: aws_iot_sub
+#     image: 314418232935.dkr.ecr.us-east-1.amazonaws.com/aws_iot_sub:1.7.2
+#     restart_policy: always
+#     # ports:
+#     #   - "8080:80"
+#     state: started
+#     volumes:
+#       - /home/pi/:/home/pi/
+#       - /var/run/cups/:/var/run/cups/
+#       - /opt/cert_iot_sub:/opt/cert_iot_sub
+#     env:
+#       LOCATION: "/opt/cert_iot_sub/"
+#       ROOTCA: "root-CA.crt"
+#       CERT: "printer.crt"
+#       PRIVATE: "printer.key"
+#       THING: "$RESTAURANTID"
+#       SUBSCRIBE: "arn:aws:iot:us-east-1:314418232935:thing/$RESTAURANTID"
+#       LOCATIONFILEPRINT: "/home/pi/"
+# # Only for LXC
+# security_opts: "apparmor=unconfined"
+#    command: ["sleep", "infinity"]
+
+# docker run -d --name aws_iot_sub \
+# --restart always \
+# -v /home/pi/:/home/pi/ \
+# -v /var/run/cups/:/var/run/cups/ \
+# -v /opt/cert_iot_sub:/opt/cert_iot_sub \
+
+# -e LOCATION="/opt/cert_iot_sub/" \
+# -e ROOTCA="root-CA.crt" \
+# -e CERT="printer.crt" \
+# -e PRIVATE="printer.key" \
+# -e THING="$RESTAURANTID" \
+# -e SUBSCRIBE="arn:aws:iot:us-east-1:314418232935:thing/$RESTAURANTID" \
+# -e LOCATIONFILEPRINT="/home/pi/" \
+
+# 314418232935.dkr.ecr.us-east-1.amazonaws.com/aws_iot_sub:1.7.2

@@ -1,0 +1,6 @@
+---
+# tasks file for prerequisitespre_tasks:
+  - name: 'install python'
+    raw: 'sudo apt-get -y install python'
+- name: PING
+  ping: ~

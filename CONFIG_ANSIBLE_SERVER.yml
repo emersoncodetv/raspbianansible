@@ -1,0 +1,25 @@
+---
+- name: Ping primer playbook
+  hosts: "{{ target | default('no_hosts')}}"
+  become: yes
+  gather_facts: no
+  become_user: root
+  become_method: sudo
+  pre_tasks:
+    - import_tasks: ./tasks/pre.yml
+    - name: Gathering Facts
+      setup:
+  roles:
+    - { role: SECURITY_ANSIBLE }
+  tasks:
+    - name: ADD REPOSITORY ANSIBLE
+      apt_repository:
+        repo: ppa:ansible/ansible
+        state: present
+        codename: "{{ ansible_distribution_release }}"
+    - name: INSTALL ANSIBLE
+      package: name={{ item }} state=present
+      with_items:
+        - software-properties-common
+        - ansible
+  # ansible-playbook --extra-vars "target=ansible_server" CONFIG_ANSIBLE_SERVER.yml

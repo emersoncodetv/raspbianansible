@@ -1,0 +1,61 @@
+---
+# https://chaosmail.github.io/programming/2015/03/04/install-deb-packages-in-ansible/
+- block:
+    - name: Check if containerd.io is installed
+      command: dpkg-query -s containerd.io
+      register: containerd_io_check_deb
+      failed_when: containerd_io_check_deb.rc > 1
+      changed_when: containerd_io_check_deb.rc == 1
+
+    - name: Download containerd.io
+      get_url:
+        url: "https://packagecloud.io/Hypriot/rpi/packages/raspbian/buster/containerd.io_1.2.6-1_armhf.deb/download.deb"
+        dest: "/tmp/containerd.deb"
+      when: containerd_io_check_deb.rc == 1
+
+    - name: Install containerd.io
+      apt:
+        deb: "/tmp/containerd.deb"
+      sudo: true
+      when: containerd_io_check_deb.rc == 1
+
+    - name: Check if docker-ce-cli is installed
+      command: dpkg-query -s docker-ce-cli
+      register: docker_ce_cli_check_deb
+      failed_when: docker_ce_cli_check_deb.rc > 1
+      changed_when: docker_ce_cli_check_deb.rc == 1
+
+    - name: Download docker-ce-cli
+      get_url:
+        url: "https://download.docker.com/linux/raspbian/dists/buster/pool/stable/armhf/docker-ce-cli_19.03.2~3-0~raspbian-buster_armhf.deb"
+        dest: "/tmp/docker-ce-cli.deb"
+      when: docker_ce_cli_check_deb.rc == 1
+
+    - name: Install docker-ce-cli
+      apt:
+        deb: "/tmp/docker-ce-cli.deb"
+      sudo: true
+      when: docker_ce_cli_check_deb.rc == 1
+
+    - name: Check if docker-ce is installed
+      command: dpkg-query -s docker-ce
+      register: docker_ce_check_deb
+      failed_when: docker_ce_check_deb.rc > 1
+      changed_when: docker_ce_check_deb.rc == 1
+
+    - name: Download docker-ce
+      get_url:
+        url: "https://download.docker.com/linux/raspbian/dists/buster/pool/stable/armhf/docker-ce_19.03.2~3-0~raspbian-buster_armhf.deb"
+        dest: "/tmp/docker-ce.deb"
+      when: docker_ce_check_deb.rc == 1
+
+    - name: Install docker-ce
+      apt:
+        deb: "/tmp/docker-ce.deb"
+      sudo: true
+      when: docker_ce_check_deb.rc == 1
+
+    - name: packages versions
+      debug:
+        msg: "{{ ansible_facts.packages }}"
+        verbosity: 1

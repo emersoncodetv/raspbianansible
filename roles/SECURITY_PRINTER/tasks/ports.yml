@@ -1,0 +1,147 @@
+---
+# tasks file for SECURITY_PRINTER
+# - name: Enable UFW
+#   ufw:
+#     state: enabled
+#     policy: reject
+# - name: Set firewall default policy reject incoming
+#   ufw:
+#     policy: reject
+#     direction: incoming
+# - name: Set firewall default policy reject outgoing
+#   ufw:
+#     policy: reject
+#     direction: outgoing
+- name: Allow SSH in UFW
+  ufw:
+    rule: allow
+    port: "{{ configured_port }}"
+    proto: tcp
+- name: Allow SSH in UFW
+  ufw:
+    rule: allow
+    port: 631
+    proto: tcp
+# - name: Deny port range UDP 1:65535
+#   ufw:
+#     rule: reject
+#     port: 1:65535
+#     proto: udp
+- name: Enable service ufw, and started state
+  service:
+    name: ufw
+    enabled: yes
+    state: started
+# - name: Set firewall default policy
+#   ufw:
+# state: enabled
+# policy: reject
+# direction:
+#   - incoming
+#   - outgoing
+#   sudo: true
+# - name: Deny port range 1:21
+#   ufw:
+#     rule: reject
+#     port: 1:21
+#     proto: tcp
+# - name: Deny port range 23:65535
+#   ufw:
+#     rule: reject
+#     port: 23:65535
+#     proto: tcp
+# https://unix.stackexchange.com/questions/348829/how-to-list-all-open-ports-after-blocking-ports-using-iptables
+# https://www.adminsehow.com/2009/08/how-to-clear-all-iptables-rules/
+# - name: iptables -F
+#   iptables:
+#     flush: yes
+# - name: iptables -X
+#   raw: "iptables -X"
+# - name: iptables -P OUTPUT ACCEPT
+#   iptables:
+#     chain: OUTPUT
+#     policy: ACCEPT
+# - name: iptables -P FORWARD ACCEPT
+#   iptables:
+#     chain: FORWARD
+#     policy: ACCEPT
+# - name: iptables -A INPUT -i lo -j ACCEPT
+#   iptables:
+#     action: append
+#     chain: INPUT
+#     in_interface: lo
+#     jump: ACCEPT
+# - name: iptables -A OUTPUT -o lo -j ACCEPT
+#   iptables:
+#     action: append
+#     chain: OUTPUT
+#     out_interface: lo
+#     jump: ACCEPT
+# - name: iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+#   iptables:
+#     action: append
+#     chain: INPUT
+#     match: conntrack
+#     ctstate:
+#       - ESTABLISHED
+#       - RELATED
+#     jump: ACCEPT
+# - name: iptables -A OUTPUT -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
+#   iptables:
+#     action: append
+#     chain: OUTPUT
+#     match: conntrack
+#     ctstate:
+#       - NEW
+#       - ESTABLISHED
+#       - RELATED
+#     jump: ACCEPT
+# - name: iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+#   iptables:
+#     table: nat
+#     action: append
+#     chain: POSTROUTING
+#     out_interface: eth0
+#     jump: MASQUERADE
+# - name: iptables -A FORWARD -j ACCEPT
+#   iptables:
+#     action: append
+#     chain: FORWARD
+#     jump: ACCEPT
+# - block:
+#     - name: /sbin/iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+#       iptables:
+#         action: append
+#         chain: INPUT
+#         protocol: tcp
+#         destination_port: 22
+#         jump: ACCEPT
+#     - name: /sbin/iptables -A OUTPUT -p tcp --sport 22 -j ACCEPT
+#       iptables:
+#         action: append
+#         chain: OUTPUT
+#         protocol: tcp
+#         source_port: 22
+#         jump: ACCEPT
+# # /sbin/iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+# # /sbin/iptables -A OUTPUT -p tcp --sport 80 -j ACCEPT
+# # /sbin/iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+# # /sbin/iptables -A OUTPUT -p tcp --sport 443 -j ACCEPT
+# # /sbin/iptables -A INPUT -p tcp --dport 1723 -j ACCEPT
+# # /sbin/iptables -A OUTPUT -p tcp --sport 1723 -j ACCEPT
+# - name: iptables -A INPUT -p gre -j ACCEPT
+#   iptables:
+#     action: append
+#     chain: INPUT
+#     protocol: gre
+#     jump: ACCEPT
+# - name: iptables -A INPUT -j DROP
+#   iptables:
+#     action: append
+#     chain: INPUT
+#     jump: DROP
+# - name: iptables -A OUTPUT -j DROP
+#   iptables:
+#     action: append
+#     chain: OUTPUT
+#     jump: DROP

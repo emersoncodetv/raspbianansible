@@ -1,0 +1,19 @@
+[builder]
+builder_dev ansible_port=22 ansible_host=172.16.206.136 ansible_user=pi
+builder_station ansible_port=2222 ansible_host=192.168.0.13 ansible_user=pi ansible_password=raspberry
+
+[restaurants]
+restaurant-01 ansible_port=1101 ansible_host=172.16.206.135 ansible_user=pi
+restaurant-02 ansible_port=1102 ansible_host=172.16.206.135 ansible_user=pi
+
+[ansible_server]
+ansible_dev ansible_port=22 ansible_host=172.16.206.135 ansible_user=ansible
+
+[local]
+localhost
+# other
+# And many more
+
+[local:vars]
+ansible_connection=local
+# ansible_python_interpreter=/path/to/virtualenv/bin/python

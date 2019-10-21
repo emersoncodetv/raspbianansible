@@ -1,0 +1,4 @@
+---
+- import_tasks: ./install.v2.yml
+- import_tasks: ./login.yml
+- import_tasks: ./download_containers.yml

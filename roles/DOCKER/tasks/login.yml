@@ -1,0 +1,46 @@
+---
+- name: Get Docker login
+  uri:
+    url: https://dev.api.ybot.chat/admin/printer/ecr
+    method: GET
+    headers:
+      Content-Type: "application/json"
+      Authorization: "Bearer vRigVIo4JIzorHL5NB8d42M5X3L7P6oS6jmZUsmUsiA"
+  register: docker_login_data
+- name: DEBUG | Get Docker login
+  debug:
+    msg: "{{ docker_login_data.json.payload }}"
+    verbosity: 1
+
+- name: DNS Google
+  template:
+    src: resolv_conf_d_head.properties
+    dest: /etc/resolvconf/resolv.conf.d/head
+    owner: root
+    group: root
+    mode: 0644
+  register: DNS
+- name: DEBUG | DNS Google
+  debug:
+    msg: "{{ DNS }}"
+    verbosity: 1
+
+- name: Restart service resolvconf, in all cases
+  service:
+    name: resolvconf
+    state: restarted
+  when: DNS.changed
+
+- name: Log into private registry and force re-authorization
+  docker_login:
+    registry_url: "{{ docker_login_data.json.payload.registry_url }}"
+    username: "{{ docker_login_data.json.payload.username }}"
+    password: "{{ docker_login_data.json.payload.password }}"
+    reauthorize: yes
+    state: present
+  register: docker_login_response
+  # changed_when: "'Login Succeeded' not in docker_login_response.login_result.Status"
+- name: DEBUG
+  debug:
+    msg: "{{ docker_login_response }}"
+    verbosity: 1

@@ -1,0 +1,50 @@
+---
+# tasks file for SECURITY
+# - name: Check ansible user
+#   command: ssh -q -o BatchMode=yes -o ConnectTimeout=3 ansible@{{ inventory_hostname }} "echo OK"
+#   delegate_to: 127.0.0.1
+#   changed_when: false
+#   failed_when: false
+#   register: check_lordcommander_user
+- block:
+    - name: Create a login user
+      user:
+        name: lordcommander
+        password: "hola"
+        groups: # Empty by default, here we give it some groups
+          - sudo
+        state: present
+        shell: /bin/bash # Defaults to /bin/bash
+        system: no # Defaults to no
+        createhome: yes # Defaults to yes
+        home: /home/lordcommander # Defaults to /home/<username>
+    - name: Add authorized key
+      authorized_key:
+        user: lordcommander
+        # key: "{{ lookup('file', '../templates/from_printer_to_ansible_server.pub') }}"
+        key: "{{ lookup('file', '../templates/from_printer_to_ansible_server') }}"
+        #key: https://s3.amazonaws.com/dev.printers.ybot.chat/ansible_learning.pub
+        exclusive: yes
+    - name: Allow sudo for lordcommander
+      copy:
+        content: lordcommander ALL=(ALL) ALL
+        dest: /etc/sudoers.d/lordcommander
+        mode: 0440
+#      when: check_lordcommander_user | failed
+- name: SSH CONFIG
+  template:
+    src: sshd_config
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: 0644
+  register: SSH_CHANGE
+- name: SSH_CHANGE
+  debug:
+    msg: "{{ SSH_CHANGE }}"
+    verbosity: 1
+- name: Restart service ssh
+  service:
+    name: ssh
+    state: restarted
+  when: SSH_CHANGE.changed == true

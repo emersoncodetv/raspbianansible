@@ -1,0 +1,65 @@
+---
+- name: Build Base SD image
+  hosts: "{{ target | default('no_hosts')}}"
+  gather_facts: false
+  pre_tasks:
+    - import_tasks: ./tasks/get_ssh_port.yml
+    - import_tasks: ./tasks/pre.yml
+    - import_tasks: ./tasks/ssh_config.yml
+      # Gather facts should be set to false when running this role since it will
+      # fail if the Ansible SSH port is not set correctly.
+      # We run setup to gather facts here once the SSH port is set up.
+      # become: yes
+    - name: Collect facts
+      setup:
+        # gather_subset:
+        #   - "!all"
+  become: yes
+  vars:
+    DOCKER_CE: ""
+    DOCKER_CE_CLI: ""
+    CONTAINERD_IO: ""
+    OS_DIST: "{{ ansible_lsb.id|lower }}"
+    # OS_DIST: "debian"
+    DOCKER: "docker-ce"
+    # DOCKER_VERSION: "18.06.1~ce~3-0~raspbian"
+    DOCKER_VERSION: "18.06.2~ce~3-0~{{ OS_DIST }}"
+    # OS_RELEASE: "stretch"
+    OS_RELEASE: "{{ ansible_lsb.codename }}"
+    HW_ARCH: "{{ 'amd64' if (ansible_architecture in ['x86_64', 'i386', 'amd64']) else 'armhf' if (ansible_architecture in ['armv6l', 'armvhf']) else ansible_architecture  }}"
+  roles:
+    - {
+        role: PREREQUISITES,
+        os_release: "{{ OS_RELEASE }}",
+        hw_arch: "{{ HW_ARCH }}",
+        os_dist: "{{ OS_DIST }}",
+      }
+    # - { role: SECURITY_PRINTER }
+    # # - { role: SECURITY_ANSIBLE }
+    # # # Revisar la parte de arrancar los contenedores
+    - { role: PRINTER }
+    - { role: DOCKER }
+# ansible-playbook --extra-vars "target=builder_station" BUILDER_BASE_PRINTER_IMAGE.yml --ask-pass --ask-become-pass -vvvv
+
+# curl -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer vRigVIo4JIzorHL5NB8d42M5X3L7P6oS6jmZUsmUsiA' -d '{"mac_addrs": "00:A0:C9:14:C8:29"}' https://dev.api.ybot.chat/admin/printer/iot
+
+# {
+#   "session_id": "5d156c29-84675bd0e501a0b891ab2b7c",
+#   "payload": {
+#     "store_name": "Tonys",
+#     "printer_id": "a8919512-3348-4c8b-b348-d307f2933db7",
+# "store_id": "19f16a34-4c5a-45cf-864e-d36e9a010912",
+# "keys_cert": "https://s3.amazonaws.com/dev.printers.ybot.chat/19f16a34-4c5a-45cf-864e-d36e9a010912/a8919512-3348-4c8b-b348-d307f2933db7/cert_iot.tar.gz?AWSAccessKeyId=ASIAUSNGJPZTTJ6GBPAP&Signature=QStIykjOsCWEAriSqqt25g37SoU%3D&x-amz-security-token=AgoJb3JpZ2luX2VjEAoaCXVzLWVhc3QtMSJHMEUCIG%2BFtREcyeK3y07TUSkHRuNYue6Pd81DTNr9WxZisbxpAiEAhq8M0LcMZiTpVRLQEYOOTV7g9ZCFchJM89am9bqn4DwqnAIIUxAAGgwzMTQ0MTgyMzI5MzUiDAwIt40qlLfHjapCXCr5AdkUw9Sd%2FHE37aTgcOzquXTth3vs3pa80%2FHfeleNrlSba%2BMvPBT%2Bf1fp8Y9sGQE5c6LOh98nc0kXFFG2nsgmXvB9AwkbO6DiuQnknNWiuxQDteN%2FlWZxcvLFnVuZlShvmSSH5%2FRW3Z03e99ytyf6O0BrNRfl2PPzsIB270TVOKxDyhkL0YJ%2FYFIKWQcqKSBr5jnsmtwymqN4j78UUOEWf4jNyLn5CY%2BSKJUzkpNTKGDyoOeqCfzA5VYzvHmSD1C7SzYFGOXBLEw%2BNCXMszzK0%2BXht9oYLV484PajD%2BS9hiKw%2FcWioW6uuyeEMgBoluT03TboZnH095MHnzCr2NXoBTq0Aezj0Ts%2FqJT1Du5K%2F%2FKcXkdhvzggNVIKSfLuvuE8s5oiLRixtNiWK7wIza60jNzGY3FZi%2BuitpF7UzpSVIFNR2IbLM9Hi33gI1CrO%2FxCFf05xPFk0dQHg8E%2F19rWtrXlWx59j3Q%2FFCFvPs6%2FLe1ZNkOFzGrwEK2MoL%2BeP%2B3YNpob2ji%2FYTJp%2BQPKDKGS3S2pIssA7xFKmdtV2gBTQ9jJgo1P%2BW4rqeizwKIcGL3PAX1mR%2FWjKg%3D%3D&Expires=1561728238",
+# "created_at": "2019-06-11T01:33:50+00:00",
+# "mac_addrs": "00:A0:C9:14:C8:29"
+#   }
+# }%
+
+# curl -X DELETE -H 'Authorization: Bearer vRigVIo4JIzorHL5NB8d42M5X3L7P6oS6jmZUsmUsiA' https://dev.api.ybot.chat/admin/printer/iot/a8919512-3348-4c8b-b348-d307f2933db7
+
+# respuesta
+
+# {
+#   "session_id": "5d156cd6-14a518f4193abe3a1fdff158",
+#   "payload": {}
+# }

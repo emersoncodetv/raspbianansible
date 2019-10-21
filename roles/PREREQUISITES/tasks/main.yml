@@ -1,0 +1,72 @@
+---
+# tasks file for prerequisites
+- name: PING
+  ping: ~
+- name: DEBUG | Access variables facts
+  debug:
+    verbosity: 1
+    msg: "{{ OS_DIST }}, {{ DOCKER_VERSION }}, {{ OS_RELEASE }}, {{ TEST }}"
+- name: COMMON PACKAGES | Install basic packages
+  package: name={{ item }} state=present
+  with_items:
+    - wget
+    - nano
+    - curl
+    - cups
+    - apt-transport-https
+    - python-pip
+    - resolvconf
+    - sudo
+    - nmap
+    - ufw
+    - openssh-server
+    - openssh-client
+
+# - name: COMMON PACKAGES | Install basic packages
+#   apt:
+#     name: "{{ packages }}"
+#     update_cache: yes
+#   vars:
+#     packages:
+#       - wget
+#       - nano
+#       - curl
+#       - cups
+#       - apt-transport-https
+#       - python-pip
+#       - resolvconf
+#       - sudo
+#       - nmap
+#       - ufw
+#       - openssh-server
+#       - openssh-client
+#   become: yes
+
+- name: Enable service resolvconf, and not touch the state
+  service:
+    name: resolvconf
+    enabled: yes
+- name: Start service resolvconf, if not started
+  service:
+    name: resolvconf
+    state: started
+- name: Installing docker python library using Ansible pip module
+  pip:
+    name:
+      - setuptools
+      - virtualenv
+      - docker
+    state: present
+
+- import_tasks: ./fixed/backports.bug.yml
+
+- name: GET HOSTNAME
+  shell: hostname
+  register: hostname
+- name: DEBUG
+  debug:
+    verbosity: 1
+    msg: "{{ hostname.cmd }}"
+- name: get the rpm or apt package facts
+  package_facts:
+    manager: "auto"

@@ -1,0 +1,4 @@
+---
+# <ansible_base_dir>/group_vars/all
+ADMIN_USER: ubuntu
+TEST: esta_es_una_prueba

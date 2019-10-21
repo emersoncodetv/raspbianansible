@@ -1,0 +1,43 @@
+---
+# tasks file for install_config_printer
+- name: Create directory for SAT15TUS.ppd
+  file:
+    path: /usr/share/cups/model/Generic/
+    state: directory
+- name: FILES | Download driver GenericDriverPrinter.ppd
+  get_url:
+    url: https://s3.amazonaws.com/files.ybot.chat/driver_printer/GenericDriverPrinter.ppd
+    dest: /usr/share/cups/model/Generic/GenericDriverPrinter.ppd
+    mode: 0644
+  register: PPD_FILE
+- name: FILES | Download driver GenericDriverPrinter rastertozj
+  get_url:
+    url: https://s3.amazonaws.com/files.ybot.chat/driver_printer/rastertozj
+    dest: /usr/lib/cups/filter/rastertozj
+    mode: 0755
+    owner: root
+    group: root
+  register: rastertozj_FILE
+- name: Start service cups, if not restarted
+  service:
+    name: cups
+    state: restarted
+  when: PPD_FILE == true or rastertozj_FILE == true
+# Hay una forma mas facil de hacer esto, en ves de ejecutar lpadmin se puede manejar con el archivo printer.config
+# Hay que usar un template y modificar su contenido con variables talves con un curl.
+# - name: printers.conf
+#   template:
+#     src: printers.properties
+#     dest: /etc/cups/printers.conf
+#     owner: root
+#     group: lp
+#     mode: 0600
+#   register: PRINTERS
+# - name: Debug
+#   debug:
+#     msg: PRINTERS
+- name: Config printer SAT
+  shell: "{{ item }}"
+  with_items:
+    - lpadmin -p SAT15TUS -E -v "usb://SAT/SAT15TUS" -P "/usr/share/cups/model/Generic/GenericDriverPrinter.ppd"
+    - lpadmin -p DigitalPOS -E -v "usb://Unknown/Printer" -P "/usr/share/cups/model/Generic/GenericDriverPrinter.ppd"

@@ -1,0 +1,9 @@
+- name: BUG FIXED backports.ssl-match-hostname
+  pip:
+    name:
+      - backports.ssl-match-hostname
+    state: absent
+- name: COMMON PACKAGES | Install basic packages
+  package: name={{ item }} state=present
+  with_items:
+    - python-backports.ssl-match-hostname
